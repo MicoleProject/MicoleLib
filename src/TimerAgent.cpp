@@ -1,0 +1,72 @@
+/*
+ * This file is part of Micole Architecture
+ *
+ * Copyright (C) 2007 Micole partners
+ *
+ * Micole Architecture is free software: you can redistribute it 
+ * and/or modify it under the terms of the GNU Lesser General 
+ * Public License as published by the Free Software Foundation, 
+ * either version 3 of the License, or (at your option) any 
+ * later version.
+ *
+ * Micole Architecture is distributed in the hope that it will be 
+ * useful, * but WITHOUT ANY WARRANTY; without even the implied 
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+ * PURPOSE.  See the GNU Lesser General Public License for more 
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Micole Architecture.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+#include "stdafx.h"
+//#include "StdAfx.h"
+#include "TimerAgent.h"
+
+TimerAgent::TimerAgent(const string &name, const string &type, const int &delay)
+: MicoleAgentThread(name,type), _elapsedTime(0)
+{
+	bindMessage( "^Time$", BUS_CALLBACK_OF(TimerAgent, handleTime));
+	this->start();
+	_threadActive = true;
+	_delay = delay;
+}
+
+TimerAgent::~TimerAgent()
+{
+	_threadActive = 0;
+}
+
+void TimerAgent::run ()
+{
+	while(_threadActive)
+	{
+		_elapsedTime+=_delay;
+		::Sleep(_delay);
+		onTimer();
+	}
+}
+
+
+void TimerAgent::handleTime(MicoleBus *app,int argc, const char **argv) 
+{
+}
+
+int TimerAgent::getElapsedTime()
+{
+	return _elapsedTime;
+}
+
+/**
+ * @TODO dummy function just for test
+ */
+void TimerAgent::prepareToStop(int argc, const char **argv)
+{
+	_threadActive = false;
+}
+
+void TimerAgent::prepareToSuspend(int argc, const char **argv)
+{
+	_threadActive = false;
+}
